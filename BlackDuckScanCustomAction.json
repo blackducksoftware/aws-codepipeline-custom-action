@@ -1,0 +1,73 @@
+{
+    "category": "Build",
+    "provider": "BlackDuck-HubDetect-Scan",
+    "version": "1",
+    "settings": {
+        "entityUrlTemplate": "https://s3.console.aws.amazon.com/s3/buckets/{Config:S3 Bucket Name}/?region={Config:S3 Bucket Region Name}&tab=overview",
+        "executionUrlTemplate": "https://s3.console.aws.amazon.com/s3/buckets/{Config:S3 Bucket Name}/?region={Config:S3 Bucket Region Name}&tab=overview"
+    },
+    "configurationProperties": [
+        {
+            "name": "Black Duck Hub Project Name",
+            "required": true,
+            "key": true,
+            "secret": false,
+            "queryable": false,
+            "description": "The name of the Black Duck hub project name where the vulnerabilities result need to be pushed",
+            "type": "String"
+        },
+        {
+            "name": "Black Duck Hub Project Version Name",
+            "required": false,
+            "key": true,
+            "secret": false,
+            "queryable": false,
+            "description": "The Black Duck hub project version name where the vulnerabilities result need to be pushed. Leave it blank if the custom action to create the hub version name",
+            "type": "String"
+        },
+        {
+            "name": "S3 Bucket Name",
+            "required": true,
+            "key": true,
+            "secret": false,
+            "queryable": false,
+            "description": "The name of the S3 bucket where the Black Duck risk report result need to be published or the S3 bucket path where the scan need to be performed",
+            "type": "String"
+        },
+        {
+            "name": "S3 Bucket Region Name",
+            "required": true,
+            "key": true,
+            "secret": false,
+            "queryable": false,
+            "description": "The region name of the S3 bucket where the Black Duck risk report result need to be published or the S3 bucket region name where the scan need to be performed",
+            "type": "String"
+        },
+        {
+            "name": "ECR Region Name",
+            "required": false,
+            "key": true,
+            "secret": false,
+            "queryable": false,
+            "description": "The AWS ECR region name where the images need to be pulled. Leave it blank if the images are not in AWS ECR",
+            "type": "String"
+        },
+        {
+            "name": "Image Name",
+            "required": false,
+            "key": true,
+            "secret": false,
+            "queryable": false,
+            "description": "The image tag that to be pulled and scanned. Leave it blank if you are not scanning any docker images",
+            "type": "String"
+        }
+    ],
+    "inputArtifactDetails": {
+        "maximumCount": 1,
+        "minimumCount": 0
+    },
+    "outputArtifactDetails": {
+        "maximumCount": 1,
+        "minimumCount": 0
+    }
+}
