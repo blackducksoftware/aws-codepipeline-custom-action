@@ -155,20 +155,22 @@ wait_for_build_to_finish() {
     bash hub-detect.sh  --blackduck.hub.url=$hubUrl \
     --blackduck.hub.username=$hubUserName \
     --blackduck.hub.password=$hubPassword \
-    --detect.project.name=$blackduck_project_name \
-    --detect.project.version.name=$hub_project_version \
+    --detect.project.name=\"$blackduck_project_name\" \
+    --detect.project.version.name=\"$hub_project_version\" \
     --detect.risk.report.pdf=true || fail_job "$job_json"; \
   else \
     if [ -z "$ecr_region_name" ]  || [ $ecr_region_name == 'null' ]; then \
+      echo "Internal or External Docker registry"; \
       docker login -u $dockerUserName -p $dockerPassword $dockerUrl; \
     else \
+      echo "AWS ECR registry"; \
       aws ecr get-login --no-include-email --region $ecr_region_name | sh; \
     fi; \
     bash hub-detect.sh --detect.docker.image=$image_name --blackduck.hub.url=$hubUrl \
     --blackduck.hub.username=$hubUserName \
     --blackduck.hub.password=$hubPassword \
-    --detect.project.name=$blackduck_project_name \
-    --detect.project.version.name=$hub_project_version \
+    --detect.project.name=\"$blackduck_project_name\" \
+    --detect.project.version.name=\"$hub_project_version\" \
     --detect.risk.report.pdf=true || fail_job "$job_json"; \
   fi; \
   aws s3 cp *.pdf s3://$s3_bucket_name/ --sse aws:kms || fail_job "$job_json"; \
