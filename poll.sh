@@ -15,7 +15,7 @@ run() {
   do
     local job_json="$(fetch_job "$action_type_id")"
 
-    echo "job json : $job_json" >&2
+    # echo "job json : $job_json" >&2
 
     if [[ "$job_json" != "null" && "$job_json" != "None" && "$job_json" != "" ]]; then
       create_build "$job_json"
