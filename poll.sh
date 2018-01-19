@@ -56,7 +56,7 @@ fail_job() {
   aws codepipeline put-job-failure-result \
       --job-id "$job_id" \
       --failure-details "type=JobFailed,message=Build Failed,externalExecutionId=$job_id"
-  
+
   cd ../; rm -rf $job_id
 
   sleep 3
@@ -126,7 +126,7 @@ wait_for_build_to_finish() {
   local dockerUrl=$(aws ssm get-parameters --names BLACKDUCK_DOCKER_URL --query Parameters[0].Value)
   local dockerUserName=$(aws ssm get-parameters --names BLACKDUCK_DOCKER_USERNAME --query Parameters[0].Value)
   local dockerPassword=$(aws ssm get-parameters --names BLACKDUCK_DOCKER_PASSWORD --with-decryption --query Parameters[0].Value)
-  
+
   local scan_location=""
 
   # Get the scan location
@@ -152,7 +152,9 @@ wait_for_build_to_finish() {
   aws s3 cp s3://$scan_location . || fail_job "$job_json"; \
   curl -LOk https://blackducksoftware.github.io/hub-detect/hub-detect.sh || fail_job "$job_json"; \
   if [ -z "$image_name" ]  || [ $image_name == 'null' ]; then \
-    SPRING_APPLICATION_JSON='{"blackduck.hub.password":"$hubPassword"}' bash hub-detect.sh  --blackduck.hub.url=$hubUrl \
+    eval $(echo "SPRING_APPLICATION_JSON='{\"blackduck.hub.password\":$(echo $hubPassword)}'") \
+    bash hub-detect.sh \
+    --blackduck.hub.url=$hubUrl \
     --blackduck.hub.username=$hubUserName \
     --detect.project.name=\"$blackduck_project_name\" \
     --detect.project.version.name=\"$hub_project_version\" \
@@ -165,7 +167,10 @@ wait_for_build_to_finish() {
       echo "AWS ECR registry"; \
       aws ecr get-login --no-include-email --region $ecr_region_name | sh; \
     fi; \
-    SPRING_APPLICATION_JSON='{"blackduck.hub.password":"$hubPassword"}' bash hub-detect.sh --detect.docker.image=$image_name --blackduck.hub.url=$hubUrl \
+    eval $(echo "SPRING_APPLICATION_JSON='{\"blackduck.hub.password\":$(echo $hubPassword)}'") \
+    bash hub-detect.sh \
+    --detect.docker.image=$image_name \
+    --blackduck.hub.url=$hubUrl \
     --blackduck.hub.username=$hubUserName \
     --detect.project.name=\"$blackduck_project_name\" \
     --detect.project.version.name=\"$hub_project_version\" \
