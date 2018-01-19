@@ -152,9 +152,8 @@ wait_for_build_to_finish() {
   aws s3 cp s3://$scan_location . || fail_job "$job_json"; \
   curl -LOk https://blackducksoftware.github.io/hub-detect/hub-detect.sh || fail_job "$job_json"; \
   if [ -z "$image_name" ]  || [ $image_name == 'null' ]; then \
-    bash hub-detect.sh  --blackduck.hub.url=$hubUrl \
+    SPRING_APPLICATION_JSON='{"blackduck.hub.password":"$hubPassword"}' bash hub-detect.sh  --blackduck.hub.url=$hubUrl \
     --blackduck.hub.username=$hubUserName \
-    --blackduck.hub.password=$hubPassword \
     --detect.project.name=\"$blackduck_project_name\" \
     --detect.project.version.name=\"$hub_project_version\" \
     --detect.risk.report.pdf=true || fail_job "$job_json"; \
@@ -166,9 +165,8 @@ wait_for_build_to_finish() {
       echo "AWS ECR registry"; \
       aws ecr get-login --no-include-email --region $ecr_region_name | sh; \
     fi; \
-    bash hub-detect.sh --detect.docker.image=$image_name --blackduck.hub.url=$hubUrl \
+    SPRING_APPLICATION_JSON='{"blackduck.hub.password":"$hubPassword"}' bash hub-detect.sh --detect.docker.image=$image_name --blackduck.hub.url=$hubUrl \
     --blackduck.hub.username=$hubUserName \
-    --blackduck.hub.password=$hubPassword \
     --detect.project.name=\"$blackduck_project_name\" \
     --detect.project.version.name=\"$hub_project_version\" \
     --detect.risk.report.pdf=true || fail_job "$job_json"; \
