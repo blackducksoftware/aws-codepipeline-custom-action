@@ -5,8 +5,9 @@ Note: Black Duck Hub Detect consolidates functionality of several Black Duck sca
 
 AWS CodePipeline offers Custom Actions that can be leveraged to simplify the integration of Black Duck Software into AWS CodePipeline. This document describes how to configure an AWS CodePipeline Custom Action to initiate a Hub Detect scan after a build of either:
 
-AWS CodeBuild projects, or
-non-CodeBuild projects built on a particular S3 bucket path
+	* AWS CodeBuild projects, or 
+	* non-CodeBuild projects built on a particular S3 bucket path
+
 Note: The procedure described here achieves a result similar to the Black Duck CodeBuild integration procedures, but with simpler configuration.  By using AWS CodePipeline Custom Actions, you do not have to edit each CodeBuild project's source code (buildspec.yml) to initiate a scan.
 
 # Documentation
