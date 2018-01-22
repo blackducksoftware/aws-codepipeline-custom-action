@@ -16,9 +16,10 @@ https://blackducksoftware.atlassian.net/wiki/spaces/PARTNERS/pages/56360977/Blac
 # Limitations
 There are limitations as to what can be scanned by Black Duck Hub Detect when invoked by an AWS CodePipeline Custom Action. Generally, only the following can be scanned:
 
-Fat JARs (JAR files containing all dependencies)
-WAR or TAR files containing all dependencies
-Docker Images in any Docker registry, including the Amazon EC2 Container Registry (ECR)
+	* Fat JARs (JAR files containing all dependencies)
+	* WAR or TAR files containing all dependencies
+	* Docker Images in any Docker registry, including the Amazon EC2 Container Registry (ECR)
+
 When invoked by an AWS CodePipeline Custom Action, Black Duck Hub Detect cannot, for example, scan a JAR file that contains source but no dependencies.
 
 Also note that private Docker registries are not supported.
