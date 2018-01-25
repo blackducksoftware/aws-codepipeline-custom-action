@@ -1,3 +1,7 @@
+<p align="center">
+  <img width="25%" height="25%" src="https://www.blackducksoftware.com/sites/default/files/images/Logos/BD-S.png">
+</p>
+
 # Overview
 AWS CodePipeline is a continuous delivery service you can use to model, visualize, and automate the steps required to release your software. Black Duck's integration with AWS Code Pipeline provides an easy way to automatically build any application using AWS CodeBuild and scan it for any open source vulnerabilities using Black Duck Hub Detect.
 
