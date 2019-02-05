@@ -3,11 +3,11 @@
 </p>
 
 # Overview
-AWS CodePipeline is a continuous delivery service you can use to model, visualize, and automate the steps required to release your software. Black Duck's integration with AWS Code Pipeline provides an easy way to automatically build any application using AWS CodeBuild and scan it for any open source vulnerabilities using Black Duck Hub Detect.
+AWS CodePipeline is a continuous delivery service you can use to model, visualize, and automate the steps required to release your software. Black Duck's integration with AWS Code Pipeline provides an easy way to automatically build any application using AWS CodeBuild and scan it for open source vulnerabilities using Black Duck Detect.
 
-Note: Black Duck Hub Detect consolidates functionality of several Black Duck scanning tools, package managers, and continuous-integration plugin tools. Hub Detect makes it easier to set up and scan applications using a variety of languages and package managers.
+Note: Black Duck Detect consolidates functionality of several Black Duck scanning tools, package managers, and continuous-integration plugin tools. Black Duck Detect makes it easy to scan applications using a variety of languages and package managers.
 
-AWS CodePipeline offers Custom Actions that can be leveraged to simplify the integration of Black Duck Software into AWS CodePipeline. This document describes how to configure an AWS CodePipeline Custom Action to initiate a Hub Detect scan after a build of either:
+This integration leverages AWS CodePipeline Custom Actions to simplify the integration of Black Duck Detect into AWS CodePipeline. This document describes how to configure an AWS CodePipeline Custom Action to initiate a Black Duck Detect scan after a build of either:
 
 	* AWS CodeBuild projects, or 
 	* non-CodeBuild projects built on a particular S3 bucket path
@@ -15,17 +15,18 @@ AWS CodePipeline offers Custom Actions that can be leveraged to simplify the int
 Note: The procedure described here achieves a result similar to the Black Duck CodeBuild integration procedures, but with simpler configuration.  By using AWS CodePipeline Custom Actions, you do not have to edit each CodeBuild project's source code (buildspec.yml) to initiate a scan.
 
 # Documentation
-https://blackducksoftware.atlassian.net/wiki/spaces/PARTNERS/pages/56360977/Black+Duck+AWS+CodePipeline
+https://synopsys.atlassian.net/wiki/x/bgBy
 
 # Limitations
-There are limitations as to what can be scanned by Black Duck Hub Detect when invoked by an AWS CodePipeline Custom Action. Generally, only the following can be scanned:
+There are limitations as to what can be scanned by Black Duck Detect when invoked by an AWS CodePipeline Custom Action. Generally, only the following can be scanned:
 
 	* Fat JARs (JAR files containing all dependencies)
 	* WAR or TAR files containing all dependencies
-	* Docker Images in any Docker registry, including the Amazon EC2 Container Registry (ECR)
+	* Docker Images in any public Docker registry 
+	* Docker Images in Amazon Container Registry (ECR)
 
-When invoked by an AWS CodePipeline Custom Action, Black Duck Hub Detect cannot, for example, scan a JAR file that contains source but no dependencies.
+When invoked as a  CodePipeline Custom Action, Black Duck Detect cannot, for example, scan a JAR file that contains source but no dependencies.
 
-Also note that private Docker registries are not supported.
+Also note that private Docker registries, with the exception of ECR, are not supported.
 
 
