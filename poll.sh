@@ -4,7 +4,7 @@ set -eu
 
 if [[ -z "${1:-}" ]]; then
   echo "Usage: ./poll.sh <action type id>" >&2
-  echo -e "Example:\n  ./poll.sh \"category=Build,owner=Custom,version=1,provider=BlackDuck-HubDetect-Scan\"" >&2
+  echo -e "Example:\n  ./poll.sh \"category=Build,owner=Custom,version=1.0.1,provider=BlackDuck-Detect\"" >&2
   exit 1
 fi
 
@@ -67,14 +67,14 @@ fail_job() {
 create_build() {
   local job_json="$1"
 
-  local project_name=$(action_configuration_value "$job_json" "Black Duck Hub Project Name")
+  local project_name=$(action_configuration_value "$job_json" "Black Duck Project Name")
 
-  echo "Found job. Creating build for $project_name" >&2
+  echo "Job request received! Creating Project and starting Black Duck scan for $project_name" >&2
 }
 
 acknowledge_job() {
   local job_json="$1"
-  local project_name=$(action_configuration_value "$job_json" "Black Duck Hub Project Name")
+  local project_name=$(action_configuration_value "$job_json" "Black Duck Project Name")
 
   local job_id="$(echo "$job_json" | jq -r '.id')"
   local nonce="$(echo "$job_json" | jq -r '.nonce')"
@@ -89,18 +89,18 @@ update_job_status() {
   local output="$2"
 
   local job_id="$(echo "$job_json" | jq -r '.id')"
-  local project_name=$(action_configuration_value "$job_json" "Black Duck Hub Project Name")
+  local project_name=$(action_configuration_value "$job_json" "Black Duck Project Name")
 
   echo "Updating CodePipeline job for $project_name with success/failure result" >&2
 
   if [[ "$output" -eq 0 ]]; then
     aws codepipeline put-job-success-result \
       --job-id "$job_id" \
-      --execution-details "summary=Build succeeded,externalExecutionId=$job_id,percentComplete=100" || fail_job "$job_json"
+      --execution-details "summary=Scan succeeded,externalExecutionId=$job_id,percentComplete=100" || fail_job "$job_json"
   else
     aws codepipeline put-job-failure-result \
       --job-id "$job_id" \
-      --failure-details "type=JobFailed,message=Build Failed,externalExecutionId=$job_id"
+      --failure-details "type=JobFailed,message=Scan Failed,externalExecutionId=$job_id"
   fi
 }
 
@@ -109,18 +109,17 @@ wait_for_build_to_finish() {
   local job_id="$(echo "$job_json" | jq -r '.id')"
 
   # Retrieve the custom action input parameters
-  local blackduck_project_name=$(action_configuration_value "$job_json" "Black Duck Hub Project Name")
-  local blackduck_project_version_name=$(action_configuration_value "$job_json" "Black Duck Hub Project Version Name")
+  local blackduck_project=$(action_configuration_value "$job_json" "Black Duck Project Name")
+  local blackduck_project_version=$(action_configuration_value "$job_json" "Black Duck Project Version")
   local bucket_name="$(echo "$job_json" | jq -r ".data.inputArtifacts[0].location.s3Location | .[\"bucketName\"]")"
   local object_key="$(echo "$job_json" | jq -r ".data.inputArtifacts[0].location.s3Location | .[\"objectKey\"]")"
   local s3_bucket_name=$(action_configuration_value "$job_json" "S3 Bucket Name")
-  local ecr_region_name=$(action_configuration_value "$job_json" "ECR Region Name")
+  local ecr_region=$(action_configuration_value "$job_json" "ECR Region Name")
   local image_name=$(action_configuration_value "$job_json" "Image Name")
 
   # Retrieve hub Url and Credentials
-  local hubUrl=$(aws ssm get-parameters --names BLACKDUCK_HUB_URL --query Parameters[0].Value)
-  local hubUserName=$(aws ssm get-parameters --names BLACKDUCK_HUB_USERNAME --query Parameters[0].Value)
-  local hubPassword=$(aws ssm get-parameters --names BLACKDUCK_HUB_PASSWORD --with-decryption --query Parameters[0].Value)
+  local bdUrl=$(aws ssm get-parameters --names Blackduck-URL --query Parameters[0].Value)
+  local bdToken=$(aws ssm get-parameters --names Blackduck-Token --query Parameters[0].Value)
 
   # Retrieve docker Url and Credentials
   local dockerUrl=$(aws ssm get-parameters --names BLACKDUCK_DOCKER_URL --query Parameters[0].Value)
@@ -136,44 +135,44 @@ wait_for_build_to_finish() {
     scan_location="$(echo $bucket_name/$object_key)"
   fi
 
-  local hub_project_version=""
+  local project_version=""
 
   # Get the Hub project version
-  if [ -z "$blackduck_project_version_name" ]  || [ $blackduck_project_version_name == 'null' ]; then
-    hub_project_version="$(echo $job_id)"
+  if [ -z "$blackduck_project_version" ]  || [ $blackduck_project_version == 'null' ]; then
+    project_version="$(echo $job_id)"
   else
-    hub_project_version="$(echo $blackduck_project_version_name)"
+    project_version="$(echo $blackduck_project_version)"
   fi
 
   mkdir $job_id
   chmod +x $job_id
-  # Download and execute Hub detect
+  # Download and execute Black Duck Detect
   cd $job_id || fail_job "$job_json"; \
   aws s3 cp s3://$scan_location . || fail_job "$job_json"; \
   curl -LOk https://blackducksoftware.github.io/hub-detect/hub-detect.sh || fail_job "$job_json"; \
   if [ -z "$image_name" ]  || [ $image_name == 'null' ]; then \
-    eval $(echo "SPRING_APPLICATION_JSON='{\"blackduck.hub.password\":$(echo $hubPassword)}'") \
+    eval $(echo "SPRING_APPLICATION_JSON='{\"blackduck.api.token\":$(echo $bdToken)}'") \
     bash hub-detect.sh \
-    --blackduck.hub.url=$hubUrl \
-    --blackduck.hub.username=$hubUserName \
-    --detect.project.name=\"$blackduck_project_name\" \
-    --detect.project.version.name=\"$hub_project_version\" \
+    --blackduck.url=$bdUrl \
+    --blackduck.api.token=$bdToken \
+    --detect.project.name=\"$blackduck_project\" \
+    --detect.project.version.name=\"$project_version\" \
     --detect.risk.report.pdf=true || fail_job "$job_json"; \
   else \
-    if [ -z "$ecr_region_name" ]  || [ $ecr_region_name == 'null' ]; then \
-      echo "Internal or External Docker registry"; \
+    if [ -z "$ecr_region" ]  || [ $ecr_region == 'null' ]; then \
+      echo "No ECR details provided. Executing Docker Login to authenticate with Docker registry"; \
       docker login -u $dockerUserName -p $dockerPassword $dockerUrl; \
     else \
-      echo "AWS ECR registry"; \
-      aws ecr get-login --no-include-email --region $ecr_region_name | sh; \
+      echo "ECR details provided. Generating access token for AWS ECR and executing Docker Login."; \
+      aws ecr get-login --no-include-email --region $ecr_region | sh; \
     fi; \
-    eval $(echo "SPRING_APPLICATION_JSON='{\"blackduck.hub.password\":$(echo $hubPassword)}'") \
+    eval $(echo "SPRING_APPLICATION_JSON='{\"blackduck.api.token\":$(echo $bdToken)}'") \
     bash hub-detect.sh \
     --detect.docker.image=$image_name \
-    --blackduck.hub.url=$hubUrl \
-    --blackduck.hub.username=$hubUserName \
-    --detect.project.name=\"$blackduck_project_name\" \
-    --detect.project.version.name=\"$hub_project_version\" \
+    --blackduck.url=$bdUrl \
+    --blackduck.api.token=$bdToken \
+    --detect.project.name=\"$blackduck_project\" \
+    --detect.project.version.name=\"$project_version\" \
     --detect.risk.report.pdf=true || fail_job "$job_json"; \
   fi; \
   aws s3 cp *.pdf s3://$s3_bucket_name/ --sse aws:kms || fail_job "$job_json"; \
@@ -181,7 +180,7 @@ wait_for_build_to_finish() {
   rm -rf $job_id  || fail_job "$job_json"
 
   local output=$?
-  echo "Build finished for $blackduck_project_name" >&2
+  echo "Scan completed for $blackduck_project" >&2
 
   update_job_status "$job_json" "$output"
 }
