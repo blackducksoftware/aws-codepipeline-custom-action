@@ -1,10 +1,10 @@
 {
     "category": "Build",
     "provider": "BlackDuck-Detect",
-    "version": "1.0.1",
+    "version": "1.1",
     "settings": {
-        "entityUrlTemplate": "https://s3.console.aws.amazon.com/s3/buckets/{Config:S3 Bucket Name}/?region={Config:S3 Bucket Region Name}&tab=overview",
-        "executionUrlTemplate": "https://s3.console.aws.amazon.com/s3/buckets/{Config:S3 Bucket Name}/?region={Config:S3 Bucket Region Name}&tab=overview"
+        "entityUrlTemplate": "https://s3.console.aws.amazon.com/s3/buckets/{Config:S3 Bucket Name}/?region={Config:S3 Bucket Region}&tab=overview",
+        "executionUrlTemplate": "https://s3.console.aws.amazon.com/s3/buckets/{Config:S3 Bucket Name}/?region={Config:S3 Bucket Region}&tab=overview"
     },
     "configurationProperties": [
         {
@@ -31,7 +31,7 @@
             "key": true,
             "secret": false,
             "queryable": false,
-            "description": "The S3 bucket where the Black Duck Risk Report PDF will be published. Can also be the S3 bucket path where the scan needs to be performed.",
+            "description": "The S3 bucket where the Black Duck Risk Report PDF will be published. This can also be the S3 bucket where the application was built to.",
             "type": "String"
         },
         {
@@ -49,7 +49,7 @@
             "key": true,
             "secret": false,
             "queryable": false,
-            "description": "If using ECR, specify the AWS ECR region where your images will be pulled from. Leave blank if the images are not in ECR",
+            "description": "If using ECR, specify the AWS ECR region where your images will be pulled from. Leave blank if the images are not in ECR.",
             "type": "String"
         },
         {
@@ -58,7 +58,7 @@
             "key": true,
             "secret": false,
             "queryable": false,
-            "description": "If scanning Docker images, specify the image tag to be pulled and scanned. Leave blank if not scanning any Docker images",
+            "description": "If scanning a Docker image, specify the image name and tag to pull and scan. Leave blank if not scanning any Docker images.",
             "type": "String"
         }
     ],

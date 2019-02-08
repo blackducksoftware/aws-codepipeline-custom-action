@@ -4,7 +4,7 @@ set -eu
 
 if [[ -z "${1:-}" ]]; then
   echo "Usage: ./poll.sh <action type id>" >&2
-  echo -e "Example:\n  ./poll.sh \"category=Build,owner=Custom,version=1.0.1,provider=BlackDuck-Detect\"" >&2
+  echo -e "Example:\n  ./poll.sh \"category=Build,owner=Custom,version=1.1,provider=BlackDuck-Detect\"" >&2
   exit 1
 fi
 
@@ -121,7 +121,7 @@ wait_for_build_to_finish() {
   local bdUrl=$(aws ssm get-parameters --names Blackduck-URL --query Parameters[0].Value)
   local bdToken=$(aws ssm get-parameters --names Blackduck-Token --query Parameters[0].Value)
 
-  # Retrieve docker Url and Credentials
+  # Retrieve docker Url and Credentials for external registries
   local dockerUrl=$(aws ssm get-parameters --names BLACKDUCK_DOCKER_URL --query Parameters[0].Value)
   local dockerUserName=$(aws ssm get-parameters --names BLACKDUCK_DOCKER_USERNAME --query Parameters[0].Value)
   local dockerPassword=$(aws ssm get-parameters --names BLACKDUCK_DOCKER_PASSWORD --with-decryption --query Parameters[0].Value)
@@ -137,7 +137,7 @@ wait_for_build_to_finish() {
 
   local project_version=""
 
-  # Get the Hub project version
+  # Get the Black Duck Project Version
   if [ -z "$blackduck_project_version" ]  || [ $blackduck_project_version == 'null' ]; then
     project_version="$(echo $job_id)"
   else
@@ -146,6 +146,7 @@ wait_for_build_to_finish() {
 
   mkdir $job_id
   chmod +x $job_id
+
   # Download and execute Black Duck Detect
   cd $job_id || fail_job "$job_json"; \
   aws s3 cp s3://$scan_location . || fail_job "$job_json"; \
@@ -160,7 +161,7 @@ wait_for_build_to_finish() {
     --detect.risk.report.pdf=true || fail_job "$job_json"; \
   else \
     if [ -z "$ecr_region" ]  || [ $ecr_region == 'null' ]; then \
-      echo "No ECR details provided. Executing Docker Login to authenticate with Docker registry"; \
+      echo "Container Image Specified but no ECR details provided. Executing Docker Login to authenticate with external registry"; \
       docker login -u $dockerUserName -p $dockerPassword $dockerUrl; \
     else \
       echo "ECR details provided. Generating access token for AWS ECR and executing Docker Login."; \
