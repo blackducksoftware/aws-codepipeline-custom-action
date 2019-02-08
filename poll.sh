@@ -4,7 +4,7 @@ set -eu
 
 if [[ -z "${1:-}" ]]; then
   echo "Usage: ./poll.sh <action type id>" >&2
-  echo -e "Example:\n  ./poll.sh \"category=Build,owner=Custom,version=1.1,provider=BlackDuck-Detect\"" >&2
+  echo -e "Example:\n  ./poll.sh \"category=Build,owner=Custom,version=2,provider=BlackDuck-Detect\"" >&2
   exit 1
 fi
 
@@ -24,7 +24,7 @@ run() {
 
       wait_for_build_to_finish "$job_json"
     else
-      sleep 3
+      sleep 10
     fi
   done
 }
@@ -91,7 +91,7 @@ update_job_status() {
   local job_id="$(echo "$job_json" | jq -r '.id')"
   local project_name=$(action_configuration_value "$job_json" "Black Duck Project Name")
 
-  echo "Updating CodePipeline job for $project_name with success/failure result" >&2
+  echo "Updating CodePipeline step for $project_name with success/failure result." >&2
 
   if [[ "$output" -eq 0 ]]; then
     aws codepipeline put-job-success-result \
@@ -117,11 +117,11 @@ wait_for_build_to_finish() {
   local ecr_region=$(action_configuration_value "$job_json" "ECR Region Name")
   local image_name=$(action_configuration_value "$job_json" "Image Name")
 
-  # Retrieve hub Url and Credentials
+  # Retrieve Black Duck Url and Access Token from Parameter Store
   local bdUrl=$(aws ssm get-parameters --names Blackduck-URL --query Parameters[0].Value)
-  local bdToken=$(aws ssm get-parameters --names Blackduck-Token --query Parameters[0].Value)
+  local bdToken=$(aws ssm get-parameters --names Blackduck-Token --with-decryption --query Parameters[0].Value)
 
-  # Retrieve docker Url and Credentials for external registries
+  # Retrieve Docker Url and Credentials for external registries
   local dockerUrl=$(aws ssm get-parameters --names BLACKDUCK_DOCKER_URL --query Parameters[0].Value)
   local dockerUserName=$(aws ssm get-parameters --names BLACKDUCK_DOCKER_USERNAME --query Parameters[0].Value)
   local dockerPassword=$(aws ssm get-parameters --names BLACKDUCK_DOCKER_PASSWORD --with-decryption --query Parameters[0].Value)

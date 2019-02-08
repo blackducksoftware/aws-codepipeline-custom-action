@@ -1,7 +1,7 @@
 {
     "category": "Build",
     "provider": "BlackDuck-Detect",
-    "version": "1.1",
+    "version": "2",
     "settings": {
         "entityUrlTemplate": "https://s3.console.aws.amazon.com/s3/buckets/{Config:S3 Bucket Name}/?region={Config:S3 Bucket Region}&tab=overview",
         "executionUrlTemplate": "https://s3.console.aws.amazon.com/s3/buckets/{Config:S3 Bucket Name}/?region={Config:S3 Bucket Region}&tab=overview"
@@ -58,7 +58,7 @@
             "key": true,
             "secret": false,
             "queryable": false,
-            "description": "If scanning a Docker image, specify the image name and tag to pull and scan. Leave blank if not scanning any Docker images.",
+            "description": "If scanning a Docker image, specify the complete URI of the image to pull and scan. Leave blank if not scanning any Docker images.",
             "type": "String"
         }
     ],
