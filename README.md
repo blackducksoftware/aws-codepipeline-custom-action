@@ -37,9 +37,9 @@ Please note that private Docker registries other than ECR are not yet supported.
 
 ## Documentation
 
-Instructions and examples for the AWS CodePipeline Custom Action are available on our [Public Confluence](https://synopsys.atlassian.net/wiki/x/bgBy)
+Instructions and examples for the AWS CodePipeline Custom Action are available on our [Public Confluence](https://synopsys.atlassian.net/wiki/x/bgBy).
 
-For information on the full capabilities of Detect visit [Black Duck Detect Docs](https://synopsys.atlassian.net/wiki/spaces/INTDOCS/pages/622633/Hub+Detect)
+For information on the full capabilities of Detect visit [Black Duck Detect Docs](https://synopsys.atlassian.net/wiki/spaces/INTDOCS/pages/622633/Hub+Detect).
 
 ## Pre-Requisites
 
