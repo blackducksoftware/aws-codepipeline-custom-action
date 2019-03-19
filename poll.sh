@@ -154,7 +154,7 @@ wait_for_build_to_finish() {
   curl -LOk https://detect.synopsys.com/detect.sh || fail_job "$job_json"; \
   if [ -z "$image_name" ]  || [ $image_name == 'null' ]; then \
     eval $(echo "SPRING_APPLICATION_JSON='{\"blackduck.api.token\":$(echo $bdToken)}'") \
-    bash hub-detect.sh \
+    bash detect.sh \
     --blackduck.url=$bdUrl \
     --blackduck.api.token=$bdToken \
     --detect.project.name=\"$blackduck_project\" \
@@ -169,7 +169,7 @@ wait_for_build_to_finish() {
       aws ecr get-login --no-include-email --region $ecr_region | sh; \
     fi; \
     eval $(echo "SPRING_APPLICATION_JSON='{\"blackduck.api.token\":$(echo $bdToken)}'") \
-    bash hub-detect.sh \
+    bash detect.sh \
     --detect.docker.image=$image_name \
     --blackduck.url=$bdUrl \
     --blackduck.api.token=$bdToken \
