@@ -2,7 +2,7 @@
   <img width="25%" height="25%" src="https://www.blackducksoftware.com/sites/default/files/images/Logos/BD-S.png">
 </p>
 
-# Overview
+## Overview
 AWS CodePipeline is a continuous delivery service you can use to model, visualize, and automate the steps required to release your software. Black Duck's Custom Action for AWS CodePipeline allows automatic identification of Open Source Security, License, and Operational risks during your application build process.
 
 
@@ -12,16 +12,16 @@ AWS CodePipeline is a continuous delivery service you can use to model, visualiz
 
 ## How does the scan work?
 
-The CodePipeline Custom Action runs Black Duck Detect against your application build as a post-build action.
+The CodePipeline Custom Action runs Synopsys Detect against your application build as a Test action.
 
-Black Duck Detect consolidates functionality of several Black Duck scanning tools, making it easy to scan applications using a variety of languages and package managers.
+Synopsys Detect consolidates functionality of several Black Duck scanning tools, making it easy to scan applications using a variety of languages and package managers.
 
 Black Duck's AWS CodePipeline Custom Action is able to run a Black Duck Detect scan against a build of either:
 
 	* AWS CodeBuild projects, or 
 	* non-CodeBuild projects built to a S3 bucket
 
-Note: The procedure described here achieves a result similar to the Black Duck CodeBuild integration procedures, but with simpler configuration.  By using AWS CodePipeline Custom Actions, you do not have to edit each CodeBuild project's source code (buildspec.yml) to initiate a scan.
+Note: The procedure described here achieves a result similar to the Black Duck CodeBuild integration procedures, but with simpler configuration.  By using AWS CodePipeline Custom Actions, you do not have to edit each CodeBuild project's build spec (buildspec.yml) to initiate a scan.
 
 ## Limitations
 There are limitations as to what can be scanned by Black Duck Detect when invoked by an AWS CodePipeline Custom Action. Generally, only the following can be scanned:
@@ -33,13 +33,11 @@ There are limitations as to what can be scanned by Black Duck Detect when invoke
 
 When invoked as a Custom Action, Black Duck Detect cannot, for example, scan a JAR file that contains source but no dependencies.
 
-Please note that private Docker registries other than ECR are not yet supported.
-
 ## Documentation
 
 Instructions and examples for the AWS CodePipeline Custom Action are available on our [Public Confluence](https://synopsys.atlassian.net/wiki/x/bgBy).
 
-For information on the full capabilities of Detect visit [Black Duck Detect Docs](https://synopsys.atlassian.net/wiki/spaces/INTDOCS/pages/622633/Hub+Detect).
+For information on the full capabilities of Detect visit [Synopsys Detect Docs](https://synopsys.atlassian.net/wiki/x/SYC4Aw).
 
 ## Pre-Requisites
 

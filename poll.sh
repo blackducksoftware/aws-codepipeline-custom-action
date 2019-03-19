@@ -4,7 +4,7 @@ set -eu
 
 if [[ -z "${1:-}" ]]; then
   echo "Usage: ./poll.sh <action type id>" >&2
-  echo -e "Example:\n  ./poll.sh \"category=Build,owner=Custom,version=2,provider=BlackDuck-Detect\"" >&2
+  echo -e "Example:\n  ./poll.sh \"category=Test,owner=Custom,version=2,provider=BlackDuck\"" >&2
   exit 1
 fi
 
@@ -96,11 +96,11 @@ update_job_status() {
   if [[ "$output" -eq 0 ]]; then
     aws codepipeline put-job-success-result \
       --job-id "$job_id" \
-      --execution-details "summary=Scan succeeded,externalExecutionId=$job_id,percentComplete=100" || fail_job "$job_json"
+      --execution-details "summary=Scan complete!,externalExecutionId=$job_id,percentComplete=100" || fail_job "$job_json"
   else
     aws codepipeline put-job-failure-result \
       --job-id "$job_id" \
-      --failure-details "type=JobFailed,message=Scan Failed,externalExecutionId=$job_id"
+      --failure-details "type=JobFailed,message=Scan failed!,externalExecutionId=$job_id"
   fi
 }
 
@@ -118,13 +118,14 @@ wait_for_build_to_finish() {
   local image_name=$(action_configuration_value "$job_json" "Image Name")
 
   # Retrieve Black Duck Url and Access Token from Parameter Store
-  local bdUrl=$(aws ssm get-parameters --names Blackduck-URL --query Parameters[0].Value)
-  local bdToken=$(aws ssm get-parameters --names Blackduck-Token --with-decryption --query Parameters[0].Value)
+  local bdUrl=$(aws ssm get-parameters --names Detect-BlackDuck-URL --query Parameters[0].Value)
+  local bdToken=$(aws ssm get-parameters --names Detect-BlackDuck-Token --with-decryption --query Parameters[0].Value)
 
-  # Retrieve Docker Url and Credentials for external registries
-  local dockerUrl=$(aws ssm get-parameters --names BLACKDUCK_DOCKER_URL --query Parameters[0].Value)
-  local dockerUserName=$(aws ssm get-parameters --names BLACKDUCK_DOCKER_USERNAME --query Parameters[0].Value)
-  local dockerPassword=$(aws ssm get-parameters --names BLACKDUCK_DOCKER_PASSWORD --with-decryption --query Parameters[0].Value)
+  # Retrieve Docker Url and Credentials for external registries 
+
+  local dockerUrl=$(aws ssm get-parameters --names Detect-Registry-URL --query Parameters[0].Value)
+  local dockerUserName=$(aws ssm get-parameters --names Detect-Registry-Username --query Parameters[0].Value)
+  local dockerPassword=$(aws ssm get-parameters --names Detect-Registry-Password --with-decryption --query Parameters[0].Value)
 
   local scan_location=""
 
@@ -150,7 +151,7 @@ wait_for_build_to_finish() {
   # Download and execute Black Duck Detect
   cd $job_id || fail_job "$job_json"; \
   aws s3 cp s3://$scan_location . || fail_job "$job_json"; \
-  curl -LOk https://blackducksoftware.github.io/hub-detect/hub-detect.sh || fail_job "$job_json"; \
+  curl -LOk https://detect.synopsys.com/detect.sh || fail_job "$job_json"; \
   if [ -z "$image_name" ]  || [ $image_name == 'null' ]; then \
     eval $(echo "SPRING_APPLICATION_JSON='{\"blackduck.api.token\":$(echo $bdToken)}'") \
     bash hub-detect.sh \

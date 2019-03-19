@@ -1,6 +1,6 @@
 {
-    "category": "Build",
-    "provider": "BlackDuck-Detect",
+    "category": "Test",
+    "provider": "BlackDuck",
     "version": "2",
     "settings": {
         "entityUrlTemplate": "https://s3.console.aws.amazon.com/s3/buckets/{Config:S3 Bucket Name}/?region={Config:S3 Bucket Region}&tab=overview",
@@ -13,7 +13,7 @@
             "key": true,
             "secret": false,
             "queryable": false,
-            "description": "The Black Duck Project Name the scan will be mapped to in the Black Duck UI",
+            "description": "The Project Name the scan will be mapped to in the Black Duck UI",
             "type": "String"
         },
         {
