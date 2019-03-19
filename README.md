@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="25%" height="25%" src="https://www.blackducksoftware.com/sites/default/files/images/Logos/BD-S.png">
+  <img width="25%" height="25%" src="https://www.synopsys.com/content/dam/synopsys/sig-assets/images/BlackDuck_by_Synospsy_onwhite.png">
 </p>
 
 ## Overview
